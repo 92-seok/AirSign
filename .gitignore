@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Env (실제 비밀값 포함 파일은 절대 커밋 금지)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PM2
+.pm2/
+ecosystem.config.local.js
+
+# Claude Code 메타 (프로젝트 로컬 설정)
+.claude/
+
+# 레거시 PHP — 마이그레이션 작업용 로컬 보존 (저장소 추적 X)
+_legacy_php/
+
+# 운영 메모/플랜 (개인용)
+*.private.md
+NOTES.local.md
+
+# Next.js
+next-env.d.ts
+
+# Testing
+coverage/

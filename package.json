@@ -1,0 +1,21 @@
+{
+  "name": "airsign",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AirSign — 미세먼지 전광판 제어 및 표출 웹서비스 (레거시 PHP 리뉴얼)",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w web",
+    "dev:api": "npm run start:dev -w api",
+    "build:web": "npm run build -w web",
+    "build:api": "npm run build -w api",
+    "start:web": "npm run start -w web",
+    "start:api": "npm run start:prod -w api",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
