@@ -16,6 +16,11 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${API_TARGET}/api/:path*`,
       },
+      // 레거시 LED 전광판 미리보기 자산 (NestJS가 _legacy_php/image, _legacy_php/MC 정적 서빙)
+      {
+        source: "/assets/:path*",
+        destination: `${API_TARGET}/assets/:path*`,
+      },
     ];
   },
 };

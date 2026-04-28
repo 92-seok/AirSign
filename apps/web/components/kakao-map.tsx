@@ -3,86 +3,12 @@
 import { useEffect, useMemo, useRef } from "react";
 
 import type { EquipDashboardItem } from "@/lib/equip-api";
-
-interface KakaoLatLng {
-  __brand?: "LatLng";
-}
-interface KakaoMap {
-  setCenter(latlng: KakaoLatLng): void;
-  setLevel(level: number): void;
-  setBounds(bounds: KakaoLatLngBounds): void;
-}
-interface KakaoLatLngBounds {
-  extend(latlng: KakaoLatLng): void;
-  isEmpty(): boolean;
-}
-interface KakaoOverlay {
-  setMap(map: KakaoMap | null): void;
-}
-interface KakaoMapsApi {
-  load(cb: () => void): void;
-  Map: new (
-    container: HTMLElement,
-    options: { center: KakaoLatLng; level: number },
-  ) => KakaoMap;
-  LatLng: new (lat: number, lng: number) => KakaoLatLng;
-  LatLngBounds: new () => KakaoLatLngBounds;
-  CustomOverlay: new (options: {
-    position: KakaoLatLng;
-    content: HTMLElement | string;
-    xAnchor?: number;
-    yAnchor?: number;
-    zIndex?: number;
-  }) => KakaoOverlay;
-}
-
-declare global {
-  interface Window {
-    kakao?: { maps: KakaoMapsApi };
-  }
-}
-
-const KAKAO_KEY = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
-const SDK_URL_BASE = "https://dapi.kakao.com/v2/maps/sdk.js";
-
-let sdkPromise: Promise<void> | null = null;
-
-function loadKakaoSdk(key: string): Promise<void> {
-  if (typeof window === "undefined") return Promise.resolve();
-  if (window.kakao?.maps) return Promise.resolve();
-  if (!sdkPromise) {
-    sdkPromise = new Promise<void>((resolve, reject) => {
-      const existing = document.querySelector<HTMLScriptElement>(
-        `script[data-kakao-sdk="1"]`,
-      );
-      const script = existing ?? document.createElement("script");
-      if (!existing) {
-        script.src = `${SDK_URL_BASE}?appkey=${key}&autoload=false`;
-        script.async = true;
-        script.dataset.kakaoSdk = "1";
-        document.head.appendChild(script);
-      }
-      const onLoaded = () => {
-        const api = window.kakao?.maps;
-        if (!api) {
-          reject(new Error("카카오맵 SDK 초기화 실패"));
-          return;
-        }
-        api.load(() => resolve());
-      };
-      if (existing && window.kakao?.maps) onLoaded();
-      else {
-        script.addEventListener("load", onLoaded, { once: true });
-        script.addEventListener(
-          "error",
-          () => reject(new Error("카카오맵 SDK 로드 실패")),
-          { once: true },
-        );
-      }
-    });
-  }
-  return sdkPromise;
-}
+import {
+  getKakaoKey,
+  loadKakaoSdk,
+  type KakaoMapInstance,
+  type KakaoOverlay,
+} from "@/lib/kakao-sdk";
 
 interface Props {
   equips: EquipDashboardItem[];
@@ -98,7 +24,7 @@ export function KakaoMap({
   className,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<KakaoMap | null>(null);
+  const mapRef = useRef<KakaoMapInstance | null>(null);
   const overlaysRef = useRef<KakaoOverlay[]>([]);
   const onClickRef = useRef(onMarkerClick);
   useEffect(() => {
@@ -117,20 +43,21 @@ export function KakaoMap({
     [equips],
   );
 
-  // 1) SDK + Map 1회 초기화
+  // 1) Map 1회 초기화
   useEffect(() => {
-    if (!KAKAO_KEY) return;
+    if (!getKakaoKey()) return;
     let cancelled = false;
-    loadKakaoSdk(KAKAO_KEY)
+    loadKakaoSdk()
       .then(() => {
         if (cancelled || !containerRef.current || mapRef.current) return;
         const api = window.kakao?.maps;
         if (!api) return;
-        const center = new api.LatLng(36.5, 127.8); // 한국 중심 기본값
+        const center = new api.LatLng(36.5, 127.8);
         mapRef.current = new api.Map(containerRef.current, {
           center,
           level: 12,
         });
+        mapRef.current.setMapTypeId(api.MapTypeId.HYBRID);
       })
       .catch((err: unknown) => {
         if (process.env.NODE_ENV !== "production") {
@@ -142,22 +69,20 @@ export function KakaoMap({
     };
   }, []);
 
-  // 2) 마커 갱신 (equips 또는 selectedCode 변경 시)
+  // 2) 마커 갱신
   useEffect(() => {
-    if (!KAKAO_KEY) return;
+    if (!getKakaoKey()) return;
     let cancelled = false;
-    loadKakaoSdk(KAKAO_KEY)
+    loadKakaoSdk()
       .then(() => {
         if (cancelled || !mapRef.current) return;
         const api = window.kakao?.maps;
         if (!api) return;
         const map = mapRef.current;
 
-        // 기존 overlay 제거
         overlaysRef.current.forEach((o) => o.setMap(null));
         overlaysRef.current = [];
 
-        // 새 마커 생성
         const bounds = new api.LatLngBounds();
         validPoints.forEach((e) => {
           const el = document.createElement("div");
@@ -181,7 +106,6 @@ export function KakaoMap({
           bounds.extend(new api.LatLng(e.lat, e.lng));
         });
 
-        // 첫 마커 그릴 때 화면 맞춤
         if (!bounds.isEmpty() && validPoints.length > 0) {
           map.setBounds(bounds);
         }
@@ -193,7 +117,29 @@ export function KakaoMap({
     };
   }, [validPoints, selectedCode]);
 
-  if (!KAKAO_KEY) {
+  // 3) selectedCode 변경 시 해당 장비 위치로 지도 중심 이동 + 줌 인
+  useEffect(() => {
+    if (selectedCode === null) return;
+    if (!getKakaoKey()) return;
+    let cancelled = false;
+    loadKakaoSdk()
+      .then(() => {
+        if (cancelled || !mapRef.current) return;
+        const api = window.kakao?.maps;
+        if (!api) return;
+        const target = validPoints.find((e) => e.code === selectedCode);
+        if (!target) return;
+        const ll = new api.LatLng(target.lat, target.lng);
+        mapRef.current.setLevel(4);
+        mapRef.current.setCenter(ll);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCode, validPoints]);
+
+  if (!getKakaoKey()) {
     return (
       <div
         className={`${className ?? ""} flex items-center justify-center text-center text-sm text-muted-foreground bg-muted/40 p-6`}

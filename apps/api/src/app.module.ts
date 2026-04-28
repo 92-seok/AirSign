@@ -3,8 +3,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
+import { AreasModule } from './areas/areas.module';
 import { AuthModule } from './auth/auth.module';
+import { DeviceModule } from './device/device.module';
+import { EnvironmentModule } from './environment/environment.module';
 import { EquipModule } from './equip/equip.module';
+import { LogModule } from './log/log.module';
+import { ScenarioModule } from './scenario/scenario.module';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -33,6 +38,11 @@ import { UserModule } from './user/user.module';
     UserModule,
     AuthModule,
     EquipModule,
+    EnvironmentModule,
+    AreasModule,
+    ScenarioModule,
+    LogModule,
+    DeviceModule,
   ],
   controllers: [AppController],
 })

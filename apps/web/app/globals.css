@@ -1,3 +1,4 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/[email protected]/dist/web/variable/pretendardvariable-dynamic-subset.css");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -7,9 +8,15 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans:
+    "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui,
+    sans-serif;
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading:
+    "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui,
+    sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,72 +56,73 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* AirSign 브랜드 — sky 계열 베이스 */
+  --background: oklch(0.99 0.005 235);
+  --foreground: oklch(0.18 0.04 235);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.18 0.04 235);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.18 0.04 235);
+  --primary: oklch(0.605 0.155 235); /* sky-600 */
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.96 0.02 235);
+  --secondary-foreground: oklch(0.3 0.05 235);
+  --muted: oklch(0.965 0.01 235);
+  --muted-foreground: oklch(0.5 0.04 235);
+  --accent: oklch(0.94 0.04 235);
+  --accent-foreground: oklch(0.3 0.05 235);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --border: oklch(0.9 0.02 235);
+  --input: oklch(0.9 0.02 235);
+  --ring: oklch(0.685 0.149 237);
+  --chart-1: oklch(0.685 0.149 237); /* sky */
+  --chart-2: oklch(0.7 0.15 195); /* cyan */
+  --chart-3: oklch(0.71 0.16 162); /* emerald */
+  --chart-4: oklch(0.6 0.22 295); /* violet */
+  --chart-5: oklch(0.74 0.15 70); /* amber */
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar: oklch(0.985 0.005 235);
+  --sidebar-foreground: oklch(0.18 0.04 235);
+  --sidebar-primary: oklch(0.605 0.155 235);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-accent: oklch(0.94 0.04 235);
+  --sidebar-accent-foreground: oklch(0.3 0.05 235);
+  --sidebar-border: oklch(0.9 0.02 235);
+  --sidebar-ring: oklch(0.685 0.149 237);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.16 0.02 240);
+  --foreground: oklch(0.96 0.005 235);
+  --card: oklch(0.215 0.025 240);
+  --card-foreground: oklch(0.96 0.005 235);
+  --popover: oklch(0.215 0.025 240);
+  --popover-foreground: oklch(0.96 0.005 235);
+  --primary: oklch(0.755 0.135 235); /* sky-400 */
+  --primary-foreground: oklch(0.18 0.04 235);
+  --secondary: oklch(0.27 0.03 240);
+  --secondary-foreground: oklch(0.96 0.005 235);
+  --muted: oklch(0.265 0.025 240);
+  --muted-foreground: oklch(0.7 0.03 235);
+  --accent: oklch(0.3 0.05 235);
+  --accent-foreground: oklch(0.96 0.005 235);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
+  --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --ring: oklch(0.685 0.149 237);
+  --chart-1: oklch(0.755 0.135 235);
+  --chart-2: oklch(0.78 0.13 195);
+  --chart-3: oklch(0.78 0.14 162);
+  --chart-4: oklch(0.7 0.2 295);
+  --chart-5: oklch(0.8 0.13 70);
+  --sidebar: oklch(0.215 0.025 240);
+  --sidebar-foreground: oklch(0.96 0.005 235);
+  --sidebar-primary: oklch(0.755 0.135 235);
+  --sidebar-primary-foreground: oklch(0.18 0.04 235);
+  --sidebar-accent: oklch(0.3 0.05 235);
+  --sidebar-accent-foreground: oklch(0.96 0.005 235);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.685 0.149 237);
 }
 
 @layer base {
@@ -123,9 +131,33 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings:
+      "ss01" 1,
+      "cv11" 1;
+    letter-spacing: -0.005em;
   }
   html {
     @apply font-sans;
+  }
+  /* 한국어 가독성 — break-keep을 거의 모든 문단/제목에 자동 적용 */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  dt,
+  dd,
+  th,
+  td {
+    word-break: keep-all;
+  }
+  /* 데스크탑에서 베이스 폰트 살짝 강화 (전체 가독성 +6%) */
+  @media (min-width: 1024px) {
+    html {
+      font-size: 17px;
+    }
   }
 }
 

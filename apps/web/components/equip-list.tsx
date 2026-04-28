@@ -27,7 +27,7 @@ export function EquipList({ equips, loading, selectedCode, onSelect }: Props) {
             <button
               type="button"
               onClick={() => onSelect(e)}
-              className={`w-full text-left px-4 py-3 transition-colors flex items-start gap-3 ${
+              className={`w-full text-left px-4 lg:px-5 py-3 lg:py-4 transition-colors flex items-start gap-3 ${
                 isSelected
                   ? "bg-muted/70"
                   : "hover:bg-muted/40 active:bg-muted/60"
@@ -35,10 +35,10 @@ export function EquipList({ equips, loading, selectedCode, onSelect }: Props) {
             >
               <StatusDot status={e.status} />
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">
+                <div className="text-sm lg:text-base font-medium truncate">
                   {e.name || `장비 #${e.code}`}
                 </div>
-                <div className="text-xs text-muted-foreground mt-0.5 truncate">
+                <div className="text-xs lg:text-sm text-muted-foreground mt-0.5 lg:mt-1 truncate">
                   {e.addr || (e.lastDate ? formatShortDate(e.lastDate) : "위치 정보 없음")}
                 </div>
               </div>

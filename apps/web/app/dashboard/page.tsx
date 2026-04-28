@@ -3,15 +3,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { AppHeader } from "@/components/app-header";
 import { AuthGuard } from "@/components/auth-guard";
+import { EnvironmentStrip } from "@/components/environment-strip";
 import { EquipDetail } from "@/components/equip-detail";
 import { EquipList } from "@/components/equip-list";
 import { KakaoMap } from "@/components/kakao-map";
-import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api";
-import { clearSession } from "@/lib/auth";
+import {
+  fetchDashboardEnvironment,
+  type DashboardEnvironment,
+} from "@/lib/environment-api";
 import { fetchDashboard, type EquipDashboardItem } from "@/lib/equip-api";
-import { useAuthUser } from "@/lib/use-auth";
 
 export default function DashboardPage() {
   return (
@@ -22,9 +25,14 @@ export default function DashboardPage() {
 }
 
 function DashboardContent() {
-  const user = useAuthUser();
   const [equips, setEquips] = useState<EquipDashboardItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [environment, setEnvironment] = useState<DashboardEnvironment>({
+    airQuality: null,
+    weather: null,
+    trend: { air: [], weather: [] },
+  });
+  const [equipsLoading, setEquipsLoading] = useState(true);
+  const [envLoading, setEnvLoading] = useState(true);
   const [selectedCode, setSelectedCode] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -42,17 +50,25 @@ function DashboardContent() {
             : "장비 목록을 불러올 수 없습니다.";
         toast.error(msg);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setEquipsLoading(false);
+      }
+    })();
+    void (async () => {
+      try {
+        const data = await fetchDashboardEnvironment();
+        if (!cancelled) setEnvironment(data);
+      } catch (err) {
+        if (cancelled) return;
+        if (process.env.NODE_ENV !== "production") {
+          console.error("[env]", err);
+        }
+      } finally {
+        if (!cancelled) setEnvLoading(false);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
-
-  const handleLogout = useCallback(() => {
-    clearSession();
-    window.location.href = "/login";
   }, []);
 
   const handleSelect = useCallback((e: EquipDashboardItem) => {
@@ -67,33 +83,20 @@ function DashboardContent() {
 
   return (
     <div className="h-svh flex flex-col overflow-hidden">
-      {/* Header — 모바일 컴팩트 */}
-      <header className="shrink-0 border-b bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-20">
-        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 h-12 sm:h-14">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="size-7 rounded-md bg-gradient-to-br from-sky-500 via-cyan-500 to-emerald-500 shrink-0" />
-            <div className="font-semibold text-sm tracking-tight">AirSign</div>
-            <span className="text-xs text-muted-foreground hidden md:inline truncate">
-              미세먼지 전광판 통합 관리
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            {user && (
-              <div className="text-right leading-none hidden sm:block">
-                <div className="text-xs font-medium">
-                  {user.name?.trim() || user.id}
-                </div>
-                <div className="text-[10px] text-muted-foreground mt-0.5">
-                  {user.role || "—"}
-                </div>
-              </div>
-            )}
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              로그아웃
-            </Button>
-          </div>
+      <AppHeader />
+
+      {/* 환경 정보 행 — 살짝 다른 톤으로 분리 */}
+      <section className="shrink-0 border-b bg-muted/30 z-20">
+        <div className="px-3 sm:px-5 lg:px-7 py-3 lg:py-4">
+          <EnvironmentStrip
+            air={environment.airQuality}
+            weather={environment.weather}
+            airTrend={environment.trend.air}
+            weatherTrend={environment.trend.weather}
+            loading={envLoading}
+          />
         </div>
-      </header>
+      </section>
 
       {/* Main — 풀 지도 + 사이드바/드로어 */}
       <div className="flex-1 relative overflow-hidden">
@@ -105,24 +108,24 @@ function DashboardContent() {
         />
 
         {/* 좌상단 floating 통계 chips */}
-        <div className="absolute top-3 left-3 right-3 lg:right-[26rem] flex flex-wrap gap-2 pointer-events-none">
-          <StatChip label="전체" value={equips.length} dotClass="bg-foreground/40" loading={loading} />
-          <StatChip label="정상" value={fineCount} dotClass="bg-emerald-500" loading={loading} />
-          <StatChip label="이상" value={badCount} dotClass="bg-rose-500" loading={loading} />
-          <StatChip label="미수신" value={unknownCount} dotClass="bg-zinc-400" loading={loading} />
+        <div className="absolute top-3 lg:top-4 left-3 lg:left-4 right-3 lg:right-[28rem] flex flex-wrap gap-2 lg:gap-2.5 pointer-events-none">
+          <StatChip label="전체" value={equips.length} dotClass="bg-foreground/40" loading={equipsLoading} />
+          <StatChip label="정상" value={fineCount} dotClass="bg-emerald-500" loading={equipsLoading} />
+          <StatChip label="이상" value={badCount} dotClass="bg-rose-500" loading={equipsLoading} />
+          <StatChip label="미수신" value={unknownCount} dotClass="bg-zinc-400" loading={equipsLoading} />
         </div>
 
         {/* 데스크톱 사이드바 (lg+) */}
-        <aside className="hidden lg:flex absolute top-0 right-0 bottom-0 w-96 bg-background/95 backdrop-blur border-l flex-col z-10">
-          <div className="px-4 py-4 border-b shrink-0">
-            <h2 className="text-sm font-semibold">장비 정보 및 상태</h2>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
+        <aside className="hidden lg:flex absolute top-0 right-0 bottom-0 w-[28rem] bg-background/95 backdrop-blur border-l flex-col z-10">
+          <div className="px-5 py-5 border-b shrink-0">
+            <h2 className="text-base font-semibold">장비 정보 및 상태</h2>
+            <p className="text-xs text-muted-foreground mt-1">
               마커 또는 항목 클릭 시 상세 표시
             </p>
           </div>
 
           {selected && (
-            <div className="p-4 border-b shrink-0">
+            <div className="p-5 border-b shrink-0">
               <EquipDetail equip={selected} />
             </div>
           )}
@@ -130,14 +133,14 @@ function DashboardContent() {
           <div className="flex-1 overflow-y-auto">
             <EquipList
               equips={equips}
-              loading={loading}
+              loading={equipsLoading}
               selectedCode={selectedCode}
               onSelect={handleSelect}
             />
           </div>
         </aside>
 
-        {/* 모바일: 항상 화면 하단에 떠있는 핸들 (선택 장비 카드 또는 토글 버튼) */}
+        {/* 모바일 핸들 */}
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
@@ -169,7 +172,7 @@ function DashboardContent() {
               <span className="size-2.5 rounded-full bg-foreground/40 shrink-0" />
               <div className="flex-1 text-left">
                 <div className="text-sm font-medium">
-                  {loading ? "장비 정보 불러오는 중…" : `장비 ${equips.length}대`}
+                  {equipsLoading ? "장비 정보 불러오는 중…" : `장비 ${equips.length}대`}
                 </div>
                 <div className="text-[11px] text-muted-foreground">
                   탭하여 목록 보기
@@ -180,7 +183,7 @@ function DashboardContent() {
           <span className="text-muted-foreground text-lg leading-none">▴</span>
         </button>
 
-        {/* 모바일 드로어 backdrop + 시트 */}
+        {/* 모바일 드로어 */}
         <div
           aria-hidden={!drawerOpen}
           onClick={() => setDrawerOpen(false)}
@@ -214,11 +217,9 @@ function DashboardContent() {
           <div className="flex-1 overflow-y-auto">
             <EquipList
               equips={equips}
-              loading={loading}
+              loading={equipsLoading}
               selectedCode={selectedCode}
-              onSelect={(e) => {
-                setSelectedCode(e.code);
-              }}
+              onSelect={(e) => setSelectedCode(e.code)}
             />
           </div>
         </div>
@@ -239,10 +240,12 @@ function StatChip({
   loading: boolean;
 }) {
   return (
-    <div className="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-background/95 backdrop-blur border px-3 py-1.5 shadow-sm">
-      <span className={`size-1.5 rounded-full ${dotClass}`} />
-      <span className="text-[11px] text-muted-foreground">{label}</span>
-      <span className="text-sm font-semibold tabular-nums">
+    <div className="pointer-events-auto inline-flex items-center gap-2 lg:gap-2.5 rounded-full bg-background/95 backdrop-blur border px-3 lg:px-4 py-1.5 lg:py-2 shadow-sm">
+      <span className={`size-1.5 lg:size-2 rounded-full ${dotClass}`} />
+      <span className="text-[11px] lg:text-xs text-muted-foreground">
+        {label}
+      </span>
+      <span className="text-sm lg:text-base font-semibold tabular-nums">
         {loading ? "—" : value}
       </span>
     </div>

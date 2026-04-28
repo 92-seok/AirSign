@@ -25,31 +25,31 @@ export function EquipDetail({ equip }: Props) {
   const meta = STATUS_META[equip.status];
 
   return (
-    <div className="rounded-xl border bg-card p-4 space-y-3">
+    <div className="rounded-xl border bg-card p-4 lg:p-5 space-y-3 lg:space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs lg:text-sm text-muted-foreground">
             장비 #{equip.code}
             {equip.cate && ` · ${equip.cate}`}
           </div>
-          <h3 className="text-base font-semibold truncate mt-0.5">
+          <h3 className="text-base lg:text-lg font-semibold truncate mt-0.5 lg:mt-1">
             {equip.name || `장비 #${equip.code}`}
           </h3>
         </div>
         <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ${meta.cls}`}
+          className={`shrink-0 rounded-full px-2 lg:px-2.5 py-0.5 lg:py-1 text-[10px] lg:text-xs font-medium ring-1 ${meta.cls}`}
         >
           {meta.label}
         </span>
       </div>
 
       {equip.addr && (
-        <div className="text-xs text-muted-foreground line-clamp-2">
+        <div className="text-xs lg:text-sm text-muted-foreground line-clamp-2">
           {equip.addr}
         </div>
       )}
 
-      <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs pt-1">
+      <dl className="grid grid-cols-2 gap-x-3 lg:gap-x-4 gap-y-2 lg:gap-y-3 text-xs lg:text-sm pt-1">
         <Row label="디스플레이" value={equip.displayType || "—"} />
         <Row label="전원" value={equip.onOff || "—"} />
         <Row label="IP:Port" value={equip.ip ? `${equip.ip}:${equip.port}` : "—"} mono />
@@ -69,12 +69,12 @@ function Row({
   mono?: boolean;
 }) {
   return (
-    <div className="space-y-0.5 min-w-0">
-      <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">
+    <div className="space-y-0.5 lg:space-y-1 min-w-0">
+      <dt className="text-[10px] lg:text-xs uppercase tracking-wider text-muted-foreground">
         {label}
       </dt>
       <dd
-        className={`truncate ${mono ? "font-mono text-[11px]" : "text-xs font-medium"}`}
+        className={`truncate ${mono ? "font-mono text-[11px] lg:text-xs" : "text-xs lg:text-sm font-medium"}`}
       >
         {value}
       </dd>
